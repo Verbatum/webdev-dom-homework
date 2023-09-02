@@ -5,59 +5,27 @@
     <meta charset="utf-8" />
     <link rel="stylesheet" href="styles.css" />
   </head>
-
   <body>
     <div class="container">
-      <ul class="comments" id="list">
-        <li class="comment">
-          <div class="comment-header">
-            <div>Глеб Фокин</div>
-            <div>12.02.22 12:18</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Это будет первый комментарий на этой странице
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">3</span>
-              <button class="like-button"></button>
-            </div>
-          </div>
-        </li>
-        <li class="comment">
-          <div class="comment-header">
-            <div>Варвара Н.</div>
-            <div>13.02.22 19:22</div>
-          </div>
-          <div class="comment-body">
-            <div class="comment-text">
-              Мне нравится как оформлена эта страница! ❤
-            </div>
-          </div>
-          <div class="comment-footer">
-            <div class="likes">
-              <span class="likes-counter">75</span>
-              <button class="like-button -active-like"></button>
-            </div>
-          </div>
-        </li>
+      <ul class="comments" id="list-comments">
+        
       </ul>
-      <div class="add-form" id="">
+      <div class="add-form">
         <input
           type="text"
           class="add-form-name"
-          placeholder ="Введите ваше имя" id="name-input"
+          placeholder="Введите ваше имя"
+          id="name-input"
         />
-        <textarea id="comment-input"
+        <textarea
           type="textarea"
           class="add-form-text"
-          placeholder="Введите ваш коментарий" 
+          placeholder="Введите ваш коментарий"
           rows="4"
+          id="text-input"
         ></textarea>
         <div class="add-form-row">
-          <button class="add-form-button" id="add-button">Написать</button>
+          <button class="add-form-button" id="write-button">Написать</button>
         </div>
       </div>
     </div>
@@ -66,71 +34,134 @@
     .error {
       background-color: red;
     }
-    .error2 {
-      background-color: green;
-    }
   </style>
   <script>
-    const buttonElement = document.getElementById("add-button");
-    const listElement = document.getElementById("list");
-    const nameInputElement = document.getElementById("name-input");
-    const commentInputElement = document.getElementById("comment-input");
+    "use strict";
+    const buttonElement = document.getElementById('write-button');
+    const listElement = document.getElementById('list-comments');
+    const nameInputElement = document.getElementById('name-input');
+    const textInputElement = document.getElementById('text-input');
+       
+    const comments = [
+      {
+        name: "Глеб Фокин",
+        date: "12.02.22 12:18",
+        text: "Это будет первый комментарий на этой странице",
+        likesCount: 3,
+        isLiked: false
+      },
+      {
+        name: "Варвара Н.",
+        date: "13.02.22 19:22",
+        text: "Мне нравится как оформлена эта страница! ❤",
+        likesCount: 75,
+        isLiked: true
+      },
+    ];
 
+    const initEventListner = () => {
+    const likeButtons = document.querySelectorAll('.like-button');
 
-    buttonElement.addEventListener ("click", enter) ;
+    for (const likeButton of likeButtons) {
+    likeButton.addEventListener('click', (event) => {
+      event.stopPropagation();
 
-    function enter () {
-      let userDate = new Date();
-      const locale = 'ru-RU';
-      const dateFormat = {
-        day: 'numeric', 
-        month: 'numeric',
-        year: 'numeric',
+      let index = likeButton.dataset.index;
+      if (comments[index].isLiked) {
+        comments[index].isLiked = false;
+        comments[index].likesCount--;
+      } else {
+        comments[index].isLiked = true;
+        comments[index].likesCount++;
       }
-      const timeFormat = {
-        timezone: 'UTC',
-        hour: 'numeric',
-        minute: 'numeric'
+      renderComments();
+
+      });
+    }
+    }
+
+    const renderComments = () => {
+      const commentsHtml = comments.map((comment, index) => {
+        return `<li class="comment">
+          <div class="comment-header">
+          <div>${comment.name}</div>
+          <div>${comment.date}</div>
+          </div>
+          <div class="comment-body">
+            <div class="comment-text">
+          ${comment.text}    
+            </div>
+          </div>
+          <div class="comment-footer">
+            <div class="likes">
+              <span class="likes-counter" >${comment.likesCount}</span>
+              <button class="like-button ${comment.isLiked ? '-active-like' : ''}" data-index="${index}"></button>
+            </div>
+          </div>
+        </li>`
+      }).join('');
+      listElement.innerHTML = commentsHtml;
+      initEventListner();
+
+    };
+
+    renderComments();
+  
+    buttonElement.addEventListener("click", () => {
+      function getCurrentDate() {
+      let myDate = new Date();
+      let date = myDate.getDate();
+      let month = myDate.getMonth()+1;
+      let year = myDate.getFullYear();
+      let hours = myDate.getHours();
+      let minute = myDate.getMinutes();
+      if (date < 10) {
+        date = "0" + date;
       }
-
-      nameInputElement.classList.remove("error");
-      commentInputElement.classList.remove("error");
-
-      if (nameInputElement.value === "" && commentInputElement.value === "") {
-        nameInputElement.classList.add("error");
-        commentInputElement.classList.add("error");
-        return;
-      } else if (nameInputElement.value === "") {
+      if (month < 10) {
+        month = "0" + month;
+      }
+      if (hours < 10) {
+        hours = "0" + hours;
+      }
+      if (minute < 10) {
+        minute = "0" + minute
+      }
+      const dateNow = date + '.' + month + '.' + String(year).slice(2) + ' ' + hours + ':' + minute; 
+      return dateNow;
+    }
+      const currentDate = getCurrentDate();
+      nameInputElement.classList.remove('error');
+        textInputElement.classList.remove('error');
+        if (nameInputElement.value === "" && textInputElement.value === '') {
+          nameInputElement.classList.add("error"); 
+          textInputElement.classList.add("error");
+          return;
+        } else if (nameInputElement.value === "") {
           nameInputElement.classList.add("error");
          return;
-      } else if (commentInputElement.value === "") {
-          commentInputElement.classList.add("error");
+      } else if (textInputElement.value === "") {
+        textInputElement.classList.add("error");
          return;
       }
+       comments.push({
+          name: nameInputElement.value,
+          date: currentDate,
+          text: textInputElement.value,
+          likesCount: "0",
+          myLike: false
+        });
+        renderComments();
+        initEventListner();     
 
-      const oldListHtml = listElement.innerHTML;
-      listElement.innerHTML =
-        oldListHtml +
-        `<li class="comment">
-            <div class="comment-header">
-             <div> ${nameInputElement.value} </div>
-              <div> ${userDate.toLocaleDateString (locale, dateFormat)} ${userDate.toLocaleTimeString (locale, timeFormat)} </div>
-            </div>
-            <div class="comment-body">
-             <div class="comment-text">
-                ${commentInputElement.value}
-             </div>
-           </div>
-            <div class="comment-footer">
-              <div class="likes">
-                <span class="likes-counter">0</span>
-                <button class="like-button"></button>
-              </div>
-            </div>
-        </li>`;
       nameInputElement.value = "";
-      commentInputElement.value = "";
-    } 
+      textInputElement.value = "";
+       
+    });
+    
+  
+   
+    
     console.log("It works!");
   </script>
 </html>
